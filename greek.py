@@ -48,17 +48,17 @@ def load_json(json_file):
 
 def add_categories(dictionary, index):
     while index < len(dictionary):
-        key = unicode(index)
-        current_entry = dictionary[key]
-        print key + ')' + ' ' + current_entry[WORD] + ' ' + '(' + current_entry[TRANSLATION][0] + '):'
+        entry_id = unicode(index)
+        current_entry = dictionary[entry_id]
+        print entry_id + ')' + ' ' + current_entry[WORD] + ' ' + '(' + current_entry[TRANSLATION][0] + '):'
         for category in current_entry[CATEGORIES]:
             print category
         new_categories = raw_input("Input new Categories, space separated, or 'b' for break: ").split()
         if new_categories and new_categories[0] == 'b':
             break
-        dictionary[key][CATEGORIES].extend(new_categories)
-        current_entry = dictionary[key]
-        print 'Now:', key + ')', current_entry[WORD] + ':'
+        dictionary[entry_id][CATEGORIES].extend(new_categories)
+        current_entry = dictionary[entry_id]
+        print 'Now:', entry_id + ')', current_entry[WORD] + ':'
         for category in current_entry[CATEGORIES]:
             print category
         index += 1
@@ -66,9 +66,9 @@ def add_categories(dictionary, index):
 
 
 def launch_category_adder(json_file, index):
-    dictionary = load_json(json_file)
-    stopped_at, words = add_categories(dictionary, index)
-    dump_json(words, json_file)
+    old_dictionary = load_json(json_file)
+    stopped_at, new_dictionary = add_categories(old_dictionary, index)
+    dump_json(new_dictionary, json_file)
     print
     print "Stopped at", stopped_at
 
@@ -106,8 +106,24 @@ def make_corrections(json_file, some_id, field, correction):
         pass
 
 
-def rename_category(json_file, some_id):
-    pass
+def rename_category(dictionary, old_name, new_name):
+    count = 0
+    for entry_id in dictionary:
+        entry = dictionary[entry_id]
+        categories = entry[CATEGORIES]
+        if old_name in categories:
+            categories.remove(old_name)
+            categories.append(new_name)
+            count += 1
+    return count, dictionary
+
+
+def launch_category_renamer(json_file, old_name, new_name):
+    old_name = unicode(old_name, 'utf-8')
+    old_dictionary = load_json(json_file)
+    count, new_dictionary = rename_category(old_dictionary, old_name, new_name)
+    dump_json(new_dictionary, json_file)
+    print old_name, "changed to", new_name, count, "time(s)"
 
 
 def pretty_print(dictionary, start, end=None):
@@ -122,8 +138,9 @@ def pretty_print(dictionary, start, end=None):
         print_entry(dictionary, start)
 
 
-def print_entry(dictionary, entry_id):
-    entry = dictionary[unicode(entry_id)]
+def print_entry(dictionary, index):
+    entry_id = unicode(index)
+    entry = dictionary[entry_id]
     print entry_id
     for field in FIELDS:
         print_field(entry, field)
@@ -166,5 +183,6 @@ if __name__ == '__main__':
     # launch_category_adder(0)
     # make_json(make_dict(CSV_FILE), JSON_FILE)
     # launch_category_adder(JSON_FILE, 0)
+    launch_category_renamer(JSON_FILE, 'ουσιαστικό', 'ουσιαστικά')
     my_dict = load_json(JSON_FILE)
     pretty_print(my_dict, 0, 10)

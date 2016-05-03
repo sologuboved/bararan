@@ -172,11 +172,17 @@ def launch_json_maker(csv_file, json_file):
 
 def delete_entry(dictionary, some_id):
     entry_id = get_actual_id(dictionary, some_id)
-    del dictionary[entry_id]
-    restore_numeration(dictionary, int(entry_id))
-    for index in range(len(dictionary)):
-        if not get_actual_id(dictionary, index):
-            print index, 'is missing!'
+    if entry_id:
+        del dictionary[entry_id]
+        restore_numeration(dictionary, int(entry_id))
+        for index in range(len(dictionary)):
+            if not get_actual_id(dictionary, index):
+                print index, 'is missing!'
+                return False
+        return True
+    else:
+        print "Entry with id", some_id, "does not exist"
+        return False
 
 
 def restore_numeration(dictionary, deleted_index):
@@ -194,13 +200,14 @@ def launch_entry_deleter(json_file, some_id):
         return
     dictionary = load_json(json_file)
     old_length = len(dictionary)
-    delete_entry(dictionary, some_id)
-    dump_json(dictionary, json_file)
-    new_dictionary = load_json(json_file)
-    new_length = len(new_dictionary)
-    print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
+    if delete_entry(dictionary, some_id):
+        dump_json(dictionary, json_file)
+        new_dictionary = load_json(json_file)
+        new_length = len(new_dictionary)
+        print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
 
 
+def merge_entries
 
 
 if __name__ == '__main__':

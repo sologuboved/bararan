@@ -61,15 +61,15 @@ def add_categories(dictionary, index):
         print 'Now:', entry_id + ')', current_entry[WORD] + ':'
         for category in current_entry[CATEGORIES]:
             print category
+        print
         index += 1
-    return index, dictionary
+    return index
 
 
 def launch_category_adder(json_file, index):
-    old_dictionary = load_json(json_file)
-    stopped_at, new_dictionary = add_categories(old_dictionary, index)
-    dump_json(new_dictionary, json_file)
-    print
+    dictionary = load_json(json_file)
+    stopped_at = add_categories(dictionary, index)
+    dump_json(dictionary, json_file)
     print "Stopped at", stopped_at
 
 
@@ -83,7 +83,7 @@ def is_correct_type(field, modification):
     return True
 
 
-def get_proper_id(dictionary, some_id):
+def get_actual_id(dictionary, some_id):
     actual_id = None
     try:
         some_id = unicode(int(some_id))
@@ -114,14 +114,14 @@ def rename_category(dictionary, old_name, new_name):
             categories.remove(old_name)
             categories.append(new_name)
             count += 1
-    return count, dictionary
+    return count
 
 
 def launch_category_renamer(json_file, old_name, new_name):
     old_name = unicode(old_name, 'utf-8')
-    old_dictionary = load_json(json_file)
-    count, new_dictionary = rename_category(old_dictionary, old_name, new_name)
-    dump_json(new_dictionary, json_file)
+    dictionary = load_json(json_file)
+    count = rename_category(dictionary, old_name, new_name)
+    dump_json(dictionary, json_file)
     print old_name, "changed to", new_name, count, "time(s)"
 
 
@@ -156,34 +156,51 @@ def print_field(entry, field):
         print field + ':', subentry
 
 
-def test_json_maker(test_json_file):
-    words = make_dict(CSV_FILE)
-    # curr = 0
-    # while curr < 10:
-    #     print words[curr][TRANSLATION][0], words[curr][WORD], words[curr][CATEGORIES][0], words[curr][INSTALLMENT]
-    #     curr += 1
-    dump_json(words, test_json_file)
-    dictionary = load_json(test_json_file)
+def launch_json_maker(csv_file, json_file):
+    dictionary = make_dict(csv_file)
     index = 0
     while index < 10:
-        key = unicode(index)
-        current_entry = dictionary[key]
-        intro = key + ')', current_entry[WORD], '(' + current_entry[TRANSLATION][0] + '):'
-        print
-        try:
-            print intro, current_entry[CATEGORIES][0]
-        except IndexError:
-            print intro, current_entry[CATEGORIES]
+        print dictionary[index][TRANSLATION][0], \
+            dictionary[index][WORD], \
+            dictionary[index][CATEGORIES][0], \
+            dictionary[index][INSTALLMENT]
         index += 1
+    dump_json(dictionary, json_file)
+    dictionary = load_json(json_file)
+    pretty_print(dictionary, 0, 10)
+
+
+def delete_entry(dictionary, some_id):
+    entry_id = get_actual_id(dictionary, some_id)
+    del dictionary[entry_id]
+    restore_numeration(dictionary, int(entry_id))
+    for index in range(len(dictionary)):
+        if not get_actual_id(dictionary, index):
+            print index, 'is missing!'
+
+
+def restore_numeration(dictionary, deleted_index):
+    current_index, next_index = deleted_index, deleted_index + 1
+    while current_index < len(dictionary):
+        dictionary[unicode(current_index)] = dictionary.pop(unicode(next_index))
+        current_index += 1
+        next_index += 1
+
+
+def launch_entry_deleter(json_file, some_id):
+    sure = raw_input("You sure you wish to delete entry " + some_id + '?')
+    if sure != 'yes':
+        print "Deletion cancelled"
+        return
+    dictionary = load_json(json_file)
+    old_length = len(dictionary)
+    delete_entry(dictionary, some_id)
+    dump_json(dictionary, json_file)
+    new_dictionary = load_json(json_file)
+    new_length = len(dictionary)
+    print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
 
 
 if __name__ == '__main__':
-    # test_json_maker('test.json')
-    # launch_category_adder(0)
-    # make_json(make_dict(CSV_FILE), JSON_FILE)
-    # launch_category_adder(JSON_FILE, 0)
-    # launch_category_renamer(JSON_FILE, 'ουσιαστικό', 'ουσιαστικά')
-    my_dict = load_json(JSON_FILE)
-    pretty_print(my_dict, 0, 10)
-    act_id = get_proper_id(my_dict, 9)
-    print "ID:", act_id, type(act_id)
+    launch_entry_deleter(JSON_FILE, 'κλαίω')
+    pass

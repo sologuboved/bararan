@@ -207,7 +207,12 @@ def launch_entry_deleter(json_file, some_id):
         print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
 
 
-def merge_entries
+def merge_entries(dictionary, some_id1, some_id2):
+    pass
+
+
+def launch_entry_merger(json_file, some_id1, some_id2):
+    pass
 
 
 if __name__ == '__main__':

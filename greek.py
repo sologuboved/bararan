@@ -14,8 +14,7 @@ MISC = 'misc'
 CSV_FILE = 'greek_words.csv'
 JSON_FILE = 'json_lexilogio.json'
 JSON_FILE_COPY = 'json_lexilogio_copy.json'
-
-FIELDS = {TRANSLATION, ARTICLE, WORD, CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC}
+FIELDS = [WORD, ARTICLE, TRANSLATION,  CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC]
 
 
 def make_dict(csv_file):
@@ -59,7 +58,7 @@ def add_categories(dictionary, index):
             break
         dictionary[key][CATEGORIES].extend(new_categories)
         current_entry = dictionary[key]
-        print key + ')', current_entry[WORD] + ':'
+        print 'Now:', key + ')', current_entry[WORD] + ':'
         for category in current_entry[CATEGORIES]:
             print category
         index += 1
@@ -69,9 +68,9 @@ def add_categories(dictionary, index):
 def launch_category_adder(json_file, index):
     dictionary = load_json(json_file)
     stopped_at, words = add_categories(dictionary, index)
+    dump_json(words, json_file)
     print
     print "Stopped at", stopped_at
-    dump_json(words, json_file)
 
 
 def is_correct_type(field, modification):
@@ -107,9 +106,38 @@ def make_corrections(json_file, some_id, field, correction):
         pass
 
 
-
 def rename_category(json_file, some_id):
     pass
+
+
+def pretty_print(dictionary, start, end=None):
+    length = len(dictionary)
+    assert start < length, "Start %d not in range [0, %d)" % (start, length)
+    if end:
+        assert start < end < length, "End %d not in range (%d, %d)" % (end, start, length)
+        while start < end:
+            print_entry(dictionary, start)
+            start += 1
+    else:
+        print_entry(dictionary, start)
+
+
+def print_entry(dictionary, entry_id):
+    entry = dictionary[unicode(entry_id)]
+    print entry_id
+    for field in FIELDS:
+        print_field(entry, field)
+    print
+
+
+def print_field(entry, field):
+    subentry = entry[field]
+    if type(subentry) == list:
+        print field + ':'
+        for item in subentry:
+            print '    ' + item
+    else:
+        print field + ':', subentry
 
 
 def test_json_maker(test_json_file):
@@ -137,4 +165,6 @@ if __name__ == '__main__':
     # test_json_maker('test.json')
     # launch_category_adder(0)
     # make_json(make_dict(CSV_FILE), JSON_FILE)
-    launch_category_adder(JSON_FILE, 0)
+    # launch_category_adder(JSON_FILE, 0)
+    my_dict = load_json(JSON_FILE)
+    pretty_print(my_dict, 0, 10)

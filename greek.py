@@ -84,26 +84,25 @@ def is_correct_type(field, modification):
 
 
 def get_proper_id(dictionary, some_id):
-    pass
+    actual_id = None
+    try:
+        some_id = unicode(int(some_id))
+        if some_id in dictionary:
+            actual_id = some_id
+    except ValueError:
+        some_id = unicode(some_id, 'utf-8')
+        for entry_id in dictionary:
+            if dictionary[entry_id][WORD] == some_id:
+                actual_id = entry_id
+                break
+    return actual_id
 
 
 def make_corrections(json_file, some_id, field, correction):
+    # TODO unfinished
     if not is_correct_type(field, correction):
         print correction, "does not go into", field
         return
-    dictionary = load_json(json_file)
-    try:
-        some_id = unicode(int(some_id))
-        entry = dictionary.get(some_id)
-    except ValueError:
-        for key in dictionary:
-            if dictionary[key][WORD] == some_id:
-                entry = dictionary[key]
-                break
-        else:
-            entry = None
-    if entry:
-        pass
 
 
 def rename_category(dictionary, old_name, new_name):
@@ -183,6 +182,8 @@ if __name__ == '__main__':
     # launch_category_adder(0)
     # make_json(make_dict(CSV_FILE), JSON_FILE)
     # launch_category_adder(JSON_FILE, 0)
-    launch_category_renamer(JSON_FILE, 'ουσιαστικό', 'ουσιαστικά')
+    # launch_category_renamer(JSON_FILE, 'ουσιαστικό', 'ουσιαστικά')
     my_dict = load_json(JSON_FILE)
     pretty_print(my_dict, 0, 10)
+    act_id = get_proper_id(my_dict, 9)
+    print "ID:", act_id, type(act_id)

@@ -47,8 +47,7 @@ def load_json(json_file):
         return dictionary
 
 
-def add_categories(json_file, index):
-    dictionary = load_json(json_file)
+def add_categories(dictionary, index):
     while index < len(dictionary):
         key = unicode(index)
         current_entry = dictionary[key]
@@ -68,7 +67,8 @@ def add_categories(json_file, index):
 
 
 def launch_category_adder(json_file, index):
-    stopped_at, words = add_categories(json_file, index)
+    dictionary = load_json(json_file)
+    stopped_at, words = add_categories(dictionary, index)
     print
     print "Stopped at", stopped_at
     dump_json(words, json_file)

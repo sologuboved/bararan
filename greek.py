@@ -197,8 +197,10 @@ def launch_entry_deleter(json_file, some_id):
     delete_entry(dictionary, some_id)
     dump_json(dictionary, json_file)
     new_dictionary = load_json(json_file)
-    new_length = len(dictionary)
+    new_length = len(new_dictionary)
     print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
+
+
 
 
 if __name__ == '__main__':

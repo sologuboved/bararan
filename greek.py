@@ -77,7 +77,7 @@ def launch_category_adder(json_file, index):
 def is_correct_type(field, modification):
     if field not in FIELDS:
         return False
-    if (field == WORD or field == INSTALLMENT) and type(modification) != unicode:
+    if (field == WORD or field == INSTALLMENT) and type(modification) != str:
         return False
     if type(modification) != list:
         return False

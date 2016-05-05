@@ -14,7 +14,8 @@ MISC = 'misc'
 CSV_FILE = 'greek_words.csv'
 JSON_FILE = 'json_lexilogio.json'
 JSON_FILE_COPY = 'json_lexilogio_copy.json'
-FIELDS = [WORD, ARTICLE, TRANSLATION,  CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC]
+FIELDS = [WORD, ARTICLE, TRANSLATION, CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC]
+YES = 'yes'
 
 
 def make_dict(csv_file):
@@ -192,27 +193,45 @@ def restore_numeration(dictionary, deleted_index):
         next_index += 1
 
 
-def launch_entry_delete_or_merge(json_file, *args):
-    # TODO test
-    for arg in args:
-        print arg,
-    sure = raw_input("- Are you sure you wish to delete/merge this(ese) entry(ies)? ")
-    if sure != 'yes':
-        print "Deletion/merge cancelled"
-        return
+def launch_entry_deleter_or_merger(json_file, *args):
     dictionary = load_json(json_file)
     old_length = len(dictionary)
     if len(args) == 1:
         entry_id = get_actual_id(dictionary, args[0])
+        sure = raw_input("Are you sure you wish to delete entry " + dictionary[entry_id][WORD] + "? ")
+        if sure != YES:
+            print "Deletion cancelled"
+            return
         if delete_entry(dictionary, entry_id):
             dump_json(dictionary, json_file)
     elif len(args) == 2:
         some_id1, some_id2 = args
         entry_id1, entry_id2 = get_actual_id(dictionary, some_id1), get_actual_id(dictionary, some_id2)
-        if merge_entries(dictionary, entry_id1, entry_id2):
-            dump_json(dictionary, json_file)
+        if entry_id1 and entry_id2:
+            if entry_id1 == entry_id2:
+                print "It is the same entry with id", entry_id1
+                return
+            prompt = "Are you sure you wish to merge entries " + dictionary[entry_id1][WORD] + " and " + \
+                     dictionary[entry_id2][WORD] + "? "
+            sure = raw_input(prompt)
+            if sure != YES:
+                print "Merge cancelled"
+                return
+            if merge_entries(dictionary, entry_id1, entry_id2):
+                dump_json(dictionary, json_file)
+        else:
+            if entry_id1:
+                wrong_entry = entry_id2
+            elif entry_id2:
+                wrong_entry = entry_id1
+            else:
+                print "Entries with id", entry_id1, entry_id2, "do not exist"
+                return
+            print "Entry with id", wrong_entry, "does not exist"
+            return
     else:
         print "Wrong number of ids:", len(args)
+        return
     new_dictionary = load_json(json_file)
     new_length = len(new_dictionary)
     print "Dictionary is now %r entry(ies) shorter" % (old_length - new_length)
@@ -220,29 +239,19 @@ def launch_entry_delete_or_merge(json_file, *args):
 
 def merge_entries(dictionary, entry_id1, entry_id2):
     # TODO test
-    if entry_id1 and entry_id2:
-        entry1 = dictionary[entry_id1]
-        entry2 = dictionary[entry_id2]
-        entry2_fields = [entry2[field] for field in FIELDS]
-        for index in range(len(FIELDS)):
-            field = FIELDS[index]
-            entry1_field = entry1[field]
-            if type(entry1_field) == list:
-                entry2_field = entry2_fields[index]
-                for item in entry2_field:
-                    if item not in entry1_field:
-                        entry1_field.append(item)
-        return delete_entry(dictionary, entry_id2)
-    else:
-        if entry_id1:
-            wrong_entry = entry_id2
-        elif entry_id2:
-            wrong_entry = entry_id1
-        else:
-            print "Entries with id", entry_id1, entry_id2, "do not exist"
-            return False
-        print "Entry with id", wrong_entry, "does not exist"
-        return False
+    entry1 = dictionary[entry_id1]
+    entry2 = dictionary[entry_id2]
+    entry2_fields = [entry2[field] for field in FIELDS]
+    for index in range(len(FIELDS)):
+        field = FIELDS[index]
+        entry1_field = entry1[field]
+        if type(entry1_field) == list:
+            entry2_field = entry2_fields[index]
+            for item in entry2_field:
+                if item not in entry1_field:
+                    entry1_field.append(item)
+    return delete_entry(dictionary, entry_id2)
+
 
 
 def find_duplicates(json_file):
@@ -262,5 +271,11 @@ def find_duplicates(json_file):
 
 
 if __name__ == '__main__':
-    find_duplicates(JSON_FILE)
+    # κάπου [u'1136', u'441']
+    # βρίσκω [u'784', u'899']
+    # παρακαλώ [u'817', u'88']
+    # το γράμμα [u'949', u'469']
+    # το γραφείο [u'1125', u'989']
+    # επιτέλους [u'434', u'443']
+    launch_entry_deleter_or_merger(JSON_FILE, 1136)
     pass

@@ -2,6 +2,7 @@
 
 import csv
 import json
+import random
 
 TRANSLATION = 'translation'
 ARTICLE = 'article'
@@ -99,11 +100,15 @@ def get_actual_id(dictionary, some_id):
     return actual_id
 
 
-def make_corrections(json_file, some_id, field, correction):
+def make_corrections(dictionary, entry_id, field, correction):
     # TODO unfinished
     if not is_correct_type(field, correction):
         print correction, "does not go into", field
-        return
+        return False
+
+
+def launch_correction_maker(json_file, some_id, field, correction):
+    pass
 
 
 def rename_category(dictionary, old_name, new_name):
@@ -126,14 +131,18 @@ def launch_category_renamer(json_file, old_name, new_name):
     print old_name, "changed to", new_name, count, "time(s)"
 
 
-def pretty_print(dictionary, start, end=None):
+def pretty_print(dictionary, start=0, end='all'):
     length = len(dictionary)
     assert start < length, "Start %d not in range [0, %d)" % (start, length)
     if end:
-        assert start < end < length, "End %d not in range (%d, %d)" % (end, start, length)
-        while start < end:
-            print_entry(dictionary, start)
-            start += 1
+        if end == 'all':
+            for index in range(start, len(dictionary)):
+                print_entry(dictionary, index)
+        else:
+            assert start < end < length, "End %d not in range (%d, %d)" % (end, start, length)
+            while start < end:
+                print_entry(dictionary, start)
+                start += 1
     else:
         print_entry(dictionary, start)
 
@@ -238,7 +247,6 @@ def launch_entry_deleter_or_merger(json_file, *args):
 
 
 def merge_entries(dictionary, entry_id1, entry_id2):
-    # TODO test
     entry1 = dictionary[entry_id1]
     entry2 = dictionary[entry_id2]
     entry2_fields = [entry2[field] for field in FIELDS]
@@ -251,7 +259,6 @@ def merge_entries(dictionary, entry_id1, entry_id2):
                 if item not in entry1_field:
                     entry1_field.append(item)
     return delete_entry(dictionary, entry_id2)
-
 
 
 def find_duplicates(json_file):
@@ -270,12 +277,45 @@ def find_duplicates(json_file):
         print duplicate, duplicates[duplicate]
 
 
-if __name__ == '__main__':
-    # κάπου [u'1136', u'441']
-    # βρίσκω [u'784', u'899']
-    # παρακαλώ [u'817', u'88']
-    # το γράμμα [u'949', u'469']
-    # το γραφείο [u'1125', u'989']
-    # επιτέλους [u'434', u'443']
-    launch_entry_deleter_or_merger(JSON_FILE, 1136)
+def create_test_dictionary(json_file, num_entries):
+    test_dictionary = dict()
+    basic_dictionary = load_json(json_file)
+    possible_range = len(basic_dictionary) - num_entries
+    start = random.randrange(0, possible_range + 1)
+    test_id = 0
+    for index in range(start, start + num_entries):
+        test_entry = dict()
+        basic_entry_id = get_actual_id(basic_dictionary, index)
+        basic_entry = basic_dictionary[basic_entry_id]
+        for field in FIELDS:
+            item = basic_entry[field]
+            if type(item) == list:
+                test_entry[field] = item[:]
+            else:
+                test_entry[field] = item
+        test_dictionary[unicode(test_id)] = test_entry
+        test_id += 1
+    return test_dictionary
+
+
+def delete_empty_articles(dictionary):
     pass
+
+
+def launch_empty_article_deleter(json_file):
+    pass
+
+
+if __name__ == '__main__':
+    # το γραφείο [u'1121', u'985']
+
+    # find_duplicates(JSON_FILE)
+
+    d = load_json(JSON_FILE)
+    pretty_print(d, 985, None)
+    pretty_print(d, 1121, None)
+    pretty_print(d, 1122, None)
+    launch_entry_deleter_or_merger(JSON_FILE, 985, 1121)
+    d = load_json(JSON_FILE)
+    pretty_print(d, 985, None)
+    pretty_print(d, 1121, None)

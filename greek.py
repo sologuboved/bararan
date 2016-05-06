@@ -12,10 +12,12 @@ INSTALLMENT = 'installment'
 EXAMPLE = 'example'
 GRAMMAR = 'grammar'
 MISC = 'misc'
+FIELDS = [WORD, ARTICLE, TRANSLATION, CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC]
+
 CSV_FILE = 'greek_words.csv'
 JSON_FILE = 'json_lexilogio.json'
 JSON_FILE_COPY = 'json_lexilogio_copy.json'
-FIELDS = [WORD, ARTICLE, TRANSLATION, CATEGORIES, INSTALLMENT, EXAMPLE, GRAMMAR, MISC]
+
 YES = 'yes'
 
 
@@ -108,6 +110,7 @@ def make_corrections(dictionary, entry_id, field, correction):
 
 
 def launch_correction_maker(json_file, some_id, field, correction):
+    # TODO
     pass
 
 
@@ -277,11 +280,14 @@ def find_duplicates(json_file):
         print duplicate, duplicates[duplicate]
 
 
-def create_test_dictionary(json_file, num_entries):
+def create_test_dictionary(json_file, num_entries, start=None):
     test_dictionary = dict()
     basic_dictionary = load_json(json_file)
     possible_range = len(basic_dictionary) - num_entries
-    start = random.randrange(0, possible_range + 1)
+    if start:
+        assert start < possible_range, "(%d, %d) does not fit in range" % (start, start + num_entries)
+    else:
+        start = random.randrange(0, possible_range + 1)
     test_id = 0
     for index in range(start, start + num_entries):
         test_entry = dict()
@@ -299,23 +305,19 @@ def create_test_dictionary(json_file, num_entries):
 
 
 def delete_empty_articles(dictionary):
-    pass
+    for entry_id in dictionary:
+        entry = dictionary[entry_id]
+        if entry[ARTICLE][0] == u'':
+            entry[ARTICLE] = list()
 
 
 def launch_empty_article_deleter(json_file):
-    pass
+    dicionary = load_json(json_file)
+    delete_empty_articles(dicionary)
+    dump_json(dicionary, json_file)
 
 
 if __name__ == '__main__':
-    # το γραφείο [u'1121', u'985']
-
-    # find_duplicates(JSON_FILE)
-
+    # launch_empty_article_deleter(JSON_FILE)
     d = load_json(JSON_FILE)
-    pretty_print(d, 985, None)
-    pretty_print(d, 1121, None)
-    pretty_print(d, 1122, None)
-    launch_entry_deleter_or_merger(JSON_FILE, 985, 1121)
-    d = load_json(JSON_FILE)
-    pretty_print(d, 985, None)
-    pretty_print(d, 1121, None)
+    pretty_print(d, 10, 30)

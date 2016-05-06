@@ -317,7 +317,38 @@ def launch_empty_article_deleter(json_file):
     dump_json(dicionary, json_file)
 
 
+def shift_articles(dictionary):
+    for entry_id in dictionary:
+        entry = dictionary[entry_id]
+        categories = entry[CATEGORIES]
+        not_diafora = not unicode('διάφορα', 'utf-8') in categories
+        not_verb = not unicode('ρήματα', 'utf-8') in categories
+        not_adverb = not unicode('επιρρήματα', 'utf-8') in categories
+        not_adjective = not unicode('επίθετα', 'utf-8') in categories
+        no_article = not entry[ARTICLE]
+        if no_article and not_diafora and not_verb and not_adverb and not_adjective:
+            word = entry[WORD]
+            elements = word.strip().split()
+            potential_article = elements[0]
+            articles = {unicode('ο', 'utf-8'),
+                        unicode('η', 'utf-8'),
+                        unicode('το', 'utf-8'),
+                        unicode('ο/η', 'utf-8'),
+                        unicode('οι', 'utf-8'),
+                        unicode('τα', 'utf-8')}
+            if potential_article in articles:
+                entry[ARTICLE].append(potential_article)
+                entry[WORD] = ' '.join(elements[1:])
+
+
+def launch_article_shifter(json_file):
+    dictionary = load_json(json_file)
+    shift_articles(dictionary)
+    dump_json(dictionary, json_file)
+
+
 if __name__ == '__main__':
-    # launch_empty_article_deleter(JSON_FILE)
+    random.seed(0)
+    launch_article_shifter(JSON_FILE)
     d = load_json(JSON_FILE)
-    pretty_print(d, 10, 30)
+    pretty_print(d, end=50)

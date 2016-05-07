@@ -103,10 +103,10 @@ def create_test_dictionary(json_file, num_entries, start=None):
     test_dictionary = dict()
     basic_dictionary = load_json(json_file)
     possible_range = len(basic_dictionary) - num_entries
-    if start:
-        assert start < possible_range, "(%d, %d) does not fit in range" % (start, start + num_entries)
-    else:
+    if start is None:
         start = random.randrange(0, possible_range + 1)
+    else:
+        assert start < possible_range, "(%d, %d) does not fit in range" % (start, start + num_entries)
     test_id = 0
     for index in range(start, start + num_entries):
         test_entry = dict()
@@ -318,7 +318,7 @@ def launch_correction_maker(json_file, some_id, field, correction):
         print "No such entry"
         return
     print_entry(dictionary, entry_id)
-    sure = raw_input("Are you sure you wish to modify field " + field + " of this entry? ")
+    sure = raw_input("Are you sure you wish to modify field '" + field + "' of this entry? ")
     if sure != 'yes':
         print "Correction cancelled"
         return
@@ -405,8 +405,5 @@ def add_categories(dictionary, index):
 
 
 if __name__ == '__main__':
-    random.seed(0)
-    # launch_field_renamer(JSON_FILE, 'article', 'articles')
-    d = create_test_dictionary(JSON_FILE, 10)
-    pretty_print(d)
-
+    # ουσιαστικά, αντωνυμίες
+    pass

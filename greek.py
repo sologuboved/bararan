@@ -80,6 +80,24 @@ def pretty_print(dictionary, start=0, end='all'):
         print_entry(dictionary, start)
 
 
+def launch_category_printer(json_file, category):
+    dictionary = load_json(json_file)
+    try:
+        category = unicode(category, 'utf-8')
+        print_by_category(dictionary, category)
+    except TypeError as e:
+        print e
+
+
+def print_by_category(dictionary, category):
+    count = 0
+    for entry_id in dictionary:
+        if category in dictionary[entry_id][CATEGORIES]:
+            print_entry(dictionary, entry_id)
+            count += 1
+    print count, "item(s) in '" + category + "'"
+
+
 def print_entry(dictionary, index):
     entry_id = unicode(index)
     entry = dictionary[entry_id]
@@ -324,6 +342,8 @@ def launch_correction_maker(json_file, some_id, field, correction):
         return
     if make_correction(dictionary, entry_id, field, correction):
         dump_json(dictionary, json_file)
+    print 'Now:',
+    print_entry(dictionary, entry_id)
 
 
 def make_correction(dictionary, entry_id, field, correction):
@@ -405,5 +425,5 @@ def add_categories(dictionary, index):
 
 
 if __name__ == '__main__':
-    # ουσιαστικά, αντωνυμίες
-    pass
+    # launch_correction_maker(JSON_FILE, 'γιατί', CATEGORIES, ['βοηθητικά'])
+    launch_category_printer(JSON_FILE, 'διάφορα')

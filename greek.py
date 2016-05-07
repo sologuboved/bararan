@@ -82,20 +82,36 @@ def pretty_print(dictionary, start=0, end='all'):
 
 def launch_category_printer(json_file, category):
     dictionary = load_json(json_file)
-    try:
-        category = unicode(category, 'utf-8')
-        print_by_category(dictionary, category)
-    except TypeError as e:
-        print e
+    print_by_category(dictionary, category)
 
 
 def print_by_category(dictionary, category):
     count = 0
-    for entry_id in dictionary:
-        if category in dictionary[entry_id][CATEGORIES]:
-            print_entry(dictionary, entry_id)
-            count += 1
-    print count, "item(s) in '" + category + "'"
+    try:
+        category = unicode(category, 'utf-8')
+        for entry_id in dictionary:
+            if category in dictionary[entry_id][CATEGORIES]:
+                print_entry(dictionary, entry_id)
+                count += 1
+        print count, "item(s) in '" + category + "'"
+    except TypeError as e:
+        print e
+
+
+def look_up(json_file, word):
+    dictionary = load_json(json_file)
+    print_by_word(dictionary, word)
+
+
+def print_by_word(dictionary, word):
+    try:
+        word = unicode(word, 'utf-8')
+        for entry_id in dictionary:
+            if word == dictionary[entry_id][WORD]:
+                print_entry(dictionary, entry_id)
+                break
+    except TypeError as e:
+        print e
 
 
 def print_entry(dictionary, index):
@@ -426,4 +442,5 @@ def add_categories(dictionary, index):
 
 if __name__ == '__main__':
     # launch_correction_maker(JSON_FILE, 'γιατί', CATEGORIES, ['βοηθητικά'])
-    launch_category_printer(JSON_FILE, 'διάφορα')
+    # launch_category_printer(JSON_FILE, 'διάφορα')
+    look_up(JSON_FILE, 'γιατί')

@@ -4,6 +4,7 @@ import requests
 import json
 import csv
 
+
 TRANSLATION = 'translation'
 ARTICLE = 'articles'
 WORD = 'word'

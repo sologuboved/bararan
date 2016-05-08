@@ -80,6 +80,40 @@ def pretty_print(dictionary, start=0, end='all'):
         print_entry(dictionary, start)
 
 
+def launch_category_printer(json_file, category):
+    dictionary = load_json(json_file)
+    print_by_category(dictionary, category)
+
+
+def print_by_category(dictionary, category):
+    count = 0
+    try:
+        category = unicode(category, 'utf-8')
+        for entry_id in dictionary:
+            if category in dictionary[entry_id][CATEGORIES]:
+                print_entry(dictionary, entry_id)
+                count += 1
+        print count, "item(s) in '" + category + "'"
+    except TypeError as e:
+        print e
+
+
+def look_up(json_file, word):
+    dictionary = load_json(json_file)
+    print_by_word(dictionary, word)
+
+
+def print_by_word(dictionary, word):
+    try:
+        word = unicode(word, 'utf-8')
+        for entry_id in dictionary:
+            if word == dictionary[entry_id][WORD]:
+                print_entry(dictionary, entry_id)
+                break
+    except TypeError as e:
+        print e
+
+
 def print_entry(dictionary, index):
     entry_id = unicode(index)
     entry = dictionary[entry_id]
@@ -103,10 +137,10 @@ def create_test_dictionary(json_file, num_entries, start=None):
     test_dictionary = dict()
     basic_dictionary = load_json(json_file)
     possible_range = len(basic_dictionary) - num_entries
-    if start:
-        assert start < possible_range, "(%d, %d) does not fit in range" % (start, start + num_entries)
-    else:
+    if start is None:
         start = random.randrange(0, possible_range + 1)
+    else:
+        assert start < possible_range, "(%d, %d) does not fit in range" % (start, start + num_entries)
     test_id = 0
     for index in range(start, start + num_entries):
         test_entry = dict()
@@ -318,12 +352,14 @@ def launch_correction_maker(json_file, some_id, field, correction):
         print "No such entry"
         return
     print_entry(dictionary, entry_id)
-    sure = raw_input("Are you sure you wish to modify field " + field + " of this entry? ")
+    sure = raw_input("Are you sure you wish to modify field '" + field + "' of this entry? ")
     if sure != 'yes':
         print "Correction cancelled"
         return
     if make_correction(dictionary, entry_id, field, correction):
         dump_json(dictionary, json_file)
+    print 'Now:',
+    print_entry(dictionary, entry_id)
 
 
 def make_correction(dictionary, entry_id, field, correction):
@@ -405,8 +441,6 @@ def add_categories(dictionary, index):
 
 
 if __name__ == '__main__':
-    random.seed(0)
-    # launch_field_renamer(JSON_FILE, 'article', 'articles')
-    d = create_test_dictionary(JSON_FILE, 10)
-    pretty_print(d)
-
+    # launch_correction_maker(JSON_FILE, 'γιατί', CATEGORIES, ['βοηθητικά'])
+    # launch_category_printer(JSON_FILE, 'διάφορα')
+    look_up(JSON_FILE, 'γιατί')

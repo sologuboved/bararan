@@ -32,7 +32,6 @@ def load_json_from_file(json_file):
 def extract_values(dictionary):
     extracted = list()
     for entry in dictionary:
-        print type(entry)
         temp_dict = {TRANSLATION: ', '.join(dictionary[entry][TRANSLATION]).encode('utf-8'),
                      ARTICLE: ', '.join(dictionary[entry][ARTICLE]).encode('utf-8'),
                      WORD: dictionary[entry][WORD].encode('utf-8'),
